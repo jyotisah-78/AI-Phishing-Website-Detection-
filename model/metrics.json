@@ -1,0 +1,53 @@
+{
+  "trained_at": "2026-10-05 01:51",
+  "train_rows": 187856,
+  "test_rows": 47514,
+  "model_settings": {
+    "n_estimators": 50,
+    "max_depth": 15,
+    "min_samples_leaf": 10,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "test_accuracy": 0.9677989645157217,
+  "phishing_precision": 0.978162194875933,
+  "phishing_recall": 0.9464669139176264,
+  "phishing_f1": 0.9620535714285714,
+  "train_accuracy": 0.9676188144110383,
+  "majority_class_baseline_accuracy": 0.5687165887948815,
+  "confusion_matrix_labels_[phishing,legitimate]": [
+    [
+      19395,
+      1097
+    ],
+    [
+      433,
+      26589
+    ]
+  ],
+  "model_file_size_mb": 1.21,
+  "feature_importances": {
+    "is_http": 0.2453665302242124,
+    "is_https": 0.21933870004267414,
+    "num_digits": 0.11565838194226451,
+    "url_length": 0.08287798083702556,
+    "url_entropy": 0.06017991685485506,
+    "num_slashes": 0.05467676387412544,
+    "path_length": 0.04847870469573246,
+    "hostname_digits": 0.04727321815799134,
+    "num_hyphens": 0.028199383348825713,
+    "subdomain_count": 0.023831308496509912,
+    "num_letters": 0.02290762590522255,
+    "hostname_length": 0.02151430723196812,
+    "num_dots": 0.01839284834040479,
+    "hostname_hyphens": 0.008248433537739866,
+    "suspicious_keyword_count": 0.00287597686749433,
+    "num_underscores": 0.0001479105732539249,
+    "num_at_symbols": 1.7789642457403356e-05,
+    "query_length": 1.4212027060080217e-05,
+    "num_percent": 7.400182150511316e-09,
+    "has_ip_address": 0.0,
+    "has_port": 0.0
+  }
+}

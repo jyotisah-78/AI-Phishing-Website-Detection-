@@ -1,0 +1,67 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:   # lets you start the build manually from the Actions tab
+  push:                # also builds on every push
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Check that the trained model is in the repository
+        run: |
+          if (-not (Test-Path "model/phishing_model.joblib")) { throw "model/phishing_model.joblib is missing from the repository" }
+          if (-not (Test-Path "model/feature_names.txt")) { throw "model/feature_names.txt is missing from the repository" }
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Run unit tests on Windows
+        run: python src/test_project.py
+
+      - name: Build EXE with PyInstaller
+        run: >
+          pyinstaller --noconfirm --clean --onefile --windowed
+          --name PhishingURLDetector
+          --paths src
+          --add-data "model/phishing_model.joblib;model"
+          --add-data "model/feature_names.txt;model"
+          --exclude-module pandas
+          --exclude-module matplotlib
+          --exclude-module IPython
+          src/app.py
+
+      - name: Self-test the EXE (no window needed)
+        run: |
+          $log = Join-Path $env:TEMP "phishing_selftest.txt"
+          if (Test-Path $log) { Remove-Item $log }
+          $p = Start-Process -FilePath "dist\PhishingURLDetector.exe" -ArgumentList "--selftest" -PassThru
+          $null = $p.Handle
+          if (-not $p.WaitForExit(180000)) { $p.Kill(); throw "EXE self-test timed out" }
+          if (Test-Path $log) { Get-Content $log } else { throw "EXE did not write a self-test log" }
+          if ($p.ExitCode -ne 0) { throw "EXE self-test failed with exit code $($p.ExitCode)" }
+
+      - name: Show EXE size
+        run: |
+          $mb = (Get-Item "dist\PhishingURLDetector.exe").Length / 1MB
+          Write-Host ("EXE size: {0:N1} MB" -f $mb)
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v7
+        with:
+          name: PhishingURLDetector-windows
+          path: dist/PhishingURLDetector.exe
+          if-no-files-found: error
